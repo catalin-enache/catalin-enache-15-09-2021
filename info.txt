@@ -1,0 +1,2 @@
+based on next.js template:
+https://github.com/vercel/next-learn-starter/tree/master/typescript-final
