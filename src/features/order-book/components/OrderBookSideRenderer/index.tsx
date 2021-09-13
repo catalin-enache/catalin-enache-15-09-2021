@@ -1,5 +1,8 @@
 import { FC } from "react";
+import cx from "class-names";
 import { BidAskStruct, Side, EntryValue } from "../../state";
+import { OrderBookSideRendererRow } from "./OrderBookSideRendererRow";
+import styles from "../order-book-styles.module.css";
 
 type OrderBookSideRendererProps = {
   prices: number[];
@@ -34,15 +37,40 @@ export const OrderBookSideRenderer: FC<OrderBookSideRendererProps> = ({
     </div>
   ) : null;
 
+  const priceTableClassNames = cx(styles.priceTable, {
+    [styles.priceTableAsks]: side === Side.ASKS,
+    [styles.priceTableBids]: side === Side.BIDS,
+  });
+  const priceRowClassNames = cx(styles.priceRow, {
+    [styles.priceRowAsks]: side === Side.ASKS,
+    [styles.priceRowBids]: side === Side.BIDS,
+  });
+
   return (
-    <div>
+    <div className={priceTableClassNames}>
       {isDebugging && debugInfo}
-      <div>
-        <span>Price</span>
-        <span>Size</span>
-        <span>Total</span>
+      <div
+        className={cx(
+          styles.priceRow,
+          styles.priceRowHeader,
+          priceRowClassNames
+        )}
+      >
+        <span className={styles.priceCell}>PRICE</span>
+        <span className={styles.priceCell}>SIZE</span>
+        <span className={styles.priceCell}>TOTAL</span>
       </div>
-      <div></div>
+
+      {prices.map((price, i) => (
+        <OrderBookSideRendererRow
+          key={i}
+          price={price}
+          prices={prices}
+          entries={entries}
+          orderBookMaxTotal={orderBookMaxTotal}
+          side={side}
+        />
+      ))}
     </div>
   );
 };

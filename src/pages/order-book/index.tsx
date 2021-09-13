@@ -12,7 +12,9 @@ const OrderBookPage: FC = () => {
       <Head>
         <title>Order Book POC</title>
       </Head>
-      <CurrentDate />
+      <div style={{ marginBottom: -15, paddingLeft: 3 }}>
+        <CurrentDate />
+      </div>
       <h1 className={utilStyles.headingXl}>Order Book</h1>
       <OrderBookContainer />
     </Layout>

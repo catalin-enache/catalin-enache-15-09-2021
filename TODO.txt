@@ -1,17 +1,14 @@
 
-use better css
-
-write doc about app in README
-explain algorithms used in doc
-
-show error message if cannot connect to stream
-show FPS or performance somehow
-
-responsiveness
-
+Facts:
 asks (red) are given in ascending order
 bids (green) are given in descending order
-The top of the book (where you'll find the highest bid and lowest ask prices) ...
+At the top of the book are displayed the highest bid and lowest ask prices.
+
+
+TODOs:
+write doc about app in README
+explain algorithms used in doc
+show/handle FPS or performance somehow
 
 
 Further possible optimisations:

@@ -1,0 +1,178 @@
+.orderBook {
+    background-color: #131723;
+    color: #fff;
+    padding: 5px 10px 0 10px;
+    overflow: hidden;
+}
+.orderBookHeader {
+    font-size: 12px;
+    padding: 2px;
+    line-height: 1;
+}
+.orderBookHeaderTitle {
+
+}
+.orderBookHeaderTitle span {
+    margin-right: 10px;
+}
+.orderBookHeaderSpread {
+    text-align: center;
+    line-height: 1;
+    padding: 3px;
+}
+.spread {
+    font-size: 12px;
+    color: gray;
+
+    position: relative;
+    left: 30px;
+    display: inline-block;
+    width: 160px;
+    text-align: left;
+}
+.spreadOnLargeScreen {
+    display: none;
+}
+.spreadOnSmallScreen {
+    display: block;
+    text-align: center;
+    line-height: 10px;
+    padding: 5px 0 6px 0;
+}
+
+.priceTablesContainer {
+    display: flex;
+    flex-direction: column;
+}
+.priceTable {
+    width: 100%;
+    display: flex;
+}
+.priceTableAsks {
+    flex-direction: column-reverse;
+}
+.priceTableBids {
+    flex-direction: column;
+}
+.priceRow {
+    display: flex;
+    flex-direction: row;
+    position: relative;
+    --priceRowTotalPercentage: 100%;
+    --priceRowTotalPercentageColor: #ccc;
+}
+.priceRowAsks {
+
+}
+.priceRowBids {
+    /*padding-right: 30px;*/
+}
+/* the dynamic colored background */
+.priceRowAsks::before {
+    position: absolute;
+    background-color: #3d1e28;
+    content: "";
+    top: 0px;
+    left: 0;
+    right: var(--priceRowTotalPercentage);
+    height: 100%;
+    z-index: 0;
+}
+.priceRowBids::before {
+    position: absolute;
+    background-color: #123534;
+    content: "";
+    top: 0px;
+    left: 0;
+    right: var(--priceRowTotalPercentage);
+    height: 100%;
+    z-index: 0;
+}
+.priceRowHeader {
+    border-top: 1px solid #444;
+    border-bottom: 1px solid #444;
+    margin-bottom: 4px;
+    display: none;
+}
+.priceRowHeader.priceRowAsks {
+    /* for mobile reuse priceRowHeader and display it first */
+    display: flex;
+    order: 1;
+}
+.priceRow.priceRowHeader .priceCell {
+    font-size: 11px;
+    color: gray;
+}
+.priceCell {
+    width: 33.333%;
+    flex: 1 0 auto;
+    display: flex;
+    font-size: 8px;
+    justify-content: right;
+    position: relative;
+    z-index: 1;
+}
+
+.orderBookButtonsContainer  {
+    display: flex;
+    justify-content: center;
+}
+.orderBookButtonsContainer button  {
+    padding: 5px 10px;
+    margin: 10px;
+    background-color: #3d62d0;
+    color: white;
+    font-size: 10px;
+    border-radius: 5px;
+    border: none;
+    text-shadow: 0px 0px 1px  rgba(0, 0, 0, 1);
+    cursor: pointer;
+}
+.orderBookButtonsContainer button:hover {
+    transform: scale(1.05);
+}
+.errorColor {
+    color: red;
+}
+.disabledColor {
+    color: #444;
+}
+.successColor {
+    color: limegreen;
+}
+
+@media only screen and (min-width: 500px) {
+    .spreadOnLargeScreen {
+        display: inline;
+    }
+    .spreadOnSmallScreen {
+        display: none;
+    }
+    .priceTablesContainer {
+        flex-direction: row-reverse;
+    }
+    .priceTable {
+        width: 50%;
+    }
+    .priceTableAsks {
+        flex-direction: column;
+    }
+    .priceRowHeader {
+        display: flex;
+    }
+    .priceRowHeader.priceRowAsks {
+        /* for desktop reset priceRowHeader order */
+        order: unset;
+    }
+    .priceRowBids {
+        flex-direction: row-reverse;
+    }
+    .priceRowBids::before {
+        left: var(--priceRowTotalPercentage);
+        right: 0;
+    }
+    .priceRowBids .priceCell {
+        padding-right: 60px;
+    }
+
+}

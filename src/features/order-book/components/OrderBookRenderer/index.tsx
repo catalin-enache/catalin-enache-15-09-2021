@@ -1,6 +1,8 @@
 import { FC } from "react";
-import { OrderBookState, Side } from "../../state";
+import cx from "class-names";
+import { OrderBookState, Side, SubscriptionState } from "../../state";
 import { OrderBookSideRenderer } from "../OrderBookSideRenderer";
+import styles from "../order-book-styles.module.css";
 
 const isDebugging = false;
 
@@ -35,36 +37,67 @@ export const OrderBookRenderer: FC<OrderBookRendererProps> = ({
   startStopStreaming,
   changeStreaming,
 }) => {
+  const spreadJSX = (
+    <span className={styles.spread}>
+      Spread: {orderBookSpreadValue} ({orderBookSpreadPercent}%)
+    </span>
+  );
+  const spreadJSXOnLargeScreen = (
+    <span className={styles.spreadOnLargeScreen}>{spreadJSX}</span>
+  );
+  const spreadJSXOnSmallScreen = (
+    <span key={"spread"} className={styles.spreadOnSmallScreen}>
+      {spreadJSX}
+    </span>
+  );
+
+  const priceSides = [Side.ASKS, Side.BIDS].map((side) => {
+    return (
+      <OrderBookSideRenderer
+        key={side}
+        prices={orderBookPrices[side]}
+        entries={orderBookEntries[side]}
+        orderBookMaxTotal={orderBookMaxTotal}
+        side={side}
+        isDebugging={isDebugging}
+      />
+    );
+  });
+
+  // injecting spread between sides for mobile
+  priceSides.splice(1, 0, spreadJSXOnSmallScreen);
+
   return (
-    <div>
-      <div>
-        Order Book
-        <span>{currentProductId}</span>
-        <span>{orderBookSubscriptionState}</span>
-        <span>
-          Spread: {orderBookSpreadValue} ({orderBookSpreadPercent}%)
-        </span>
+    <div className={styles.orderBook}>
+      <div className={styles.orderBookHeader}>
+        <div className={styles.orderBookHeaderTitle}>
+          <span>Order Book</span>
+          <span>{currentProductId}</span>
+          <span
+            className={cx({
+              [styles.errorColor]:
+                orderBookSubscriptionState ===
+                SubscriptionState.DISCONNECTED_UNCLEAN,
+              [styles.disabledColor]:
+                orderBookSubscriptionState === SubscriptionState.DISCONNECTED,
+              [styles.successColor]:
+                orderBookSubscriptionState === SubscriptionState.SUBSCRIBED,
+            })}
+          >
+            {orderBookSubscriptionState}
+          </span>
+        </div>
+        <div className={styles.orderBookHeaderSpread}>
+          {spreadJSXOnLargeScreen}
+        </div>
       </div>
-      <div>
-        {[Side.BIDS, Side.ASKS].map((side) => {
-          return (
-            <OrderBookSideRenderer
-              key={side}
-              prices={orderBookPrices[side]}
-              entries={orderBookEntries[side]}
-              orderBookMaxTotal={orderBookMaxTotal}
-              side={side}
-              isDebugging={isDebugging}
-            />
-          );
-        })}
-      </div>
-      <div>
+      <div className={styles.priceTablesContainer}>{priceSides}</div>
+      <div className={styles.orderBookButtonsContainer}>
         <button
           onClick={startStopStreaming}
           disabled={!canConnect && !canStopStreaming}
         >
-          {canConnect ? `Start` : canStopStreaming ? "Stop" : "------"}{" "}
+          {canConnect ? "Start" : canStopStreaming ? "Stop" : "------"}{" "}
           {currentProductId}
         </button>
         <button onClick={changeStreaming}>Toggle Feed {otherProductId}</button>
