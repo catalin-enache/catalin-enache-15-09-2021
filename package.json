@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint --fix"
+    "lint": "next lint --fix",
+    "test": "jest --watch",
+    "test:ci": "jest --ci"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^1.6.1",
@@ -17,13 +19,21 @@
     "react-redux": "^7.2.5"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "5.14.1",
+    "@testing-library/react": "12.0.0",
+    "@testing-library/user-event": "13.2.1",
     "@types/node": "^16.3.3",
     "@types/react": "^17.0.14",
+    "babel-jest": "27.0.6",
     "eslint": "7.32.0",
     "eslint-config-next": "11.1.2",
     "eslint-config-prettier": "^6.15.0",
     "eslint-plugin-prettier": "^3.1.4",
+    "eslint-plugin-testing-library": "4.11.0",
+    "identity-obj-proxy": "3.0.0",
+    "jest": "^27.1.1",
     "prettier": "^2.3.2",
+    "react-test-renderer": "17.0.2",
     "typescript": "^4.3.5"
   }
 }

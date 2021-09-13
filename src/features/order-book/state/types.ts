@@ -33,10 +33,33 @@ export enum SubscriptionState {
   UNSUBSCRIBED = "UNSUBSCRIBED",
 }
 
+export enum Side {
+  BIDS = "bids",
+  ASKS = "asks",
+}
+export type PriceSize = [number, number];
+export type BidAskStruct = Record<number, { size: number; total: number }>;
+
 export type OrderBookState = {
   subscriptionState: SubscriptionState;
   feed: OrderBookFeedId | null;
   productId: OrderBookProductId | null;
   lastMessage: object;
-  entries: object;
+  entries: {
+    bids: BidAskStruct;
+    asks: BidAskStruct;
+  };
+  prices: {
+    bids: number[];
+    asks: number[];
+  };
+  spread: {
+    value: number;
+    percent: number;
+  };
+  totals: {
+    bids: number;
+    asks: number;
+  };
+  maxTotal: number;
 };

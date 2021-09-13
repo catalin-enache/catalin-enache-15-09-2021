@@ -1,4 +1,4 @@
-import { FC, useCallback, useEffect, useRef } from "react";
+import { FC, useCallback, useEffect, useRef, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../../../hooks/app.hooks";
 import {
   connectToOrderBook,
@@ -10,6 +10,10 @@ import {
   selectOrderBookProductId,
   selectOrderBookSubscriptionState,
   selectOrderBookLastMessage,
+  selectOrderBookEntries,
+  selectOrderBookPrices,
+  selectOrderBookSpread,
+  selectOrderBookMaxTotal,
 } from "../../state";
 import {
   connectToOrderBookPayload,
@@ -31,15 +35,21 @@ const OrderBook: FC = () => {
   );
   const orderBookProductId = useAppSelector(selectOrderBookProductId);
   const orderBookLastMessage = useAppSelector(selectOrderBookLastMessage);
+  const orderBookEntries = useAppSelector(selectOrderBookEntries);
+  const orderBookPrices = useAppSelector(selectOrderBookPrices);
+  const { value: orderBookSpreadValue, percent: orderBookSpreadPercent } =
+    useAppSelector(selectOrderBookSpread);
+  const orderBookMaxTotal = useAppSelector(selectOrderBookMaxTotal);
   const currentProductId = orderBookProductId ?? defaultProductId;
   const otherProductId = getOtherProductId(currentProductId);
+  const [isSubscribed, setIsSubscribed] = useState(false);
   const canConnect = [
     SubscriptionState.DISCONNECTED,
     SubscriptionState.INITIAL,
   ].includes(orderBookSubscriptionState);
-  const canSubscribe = [SubscriptionState.CONNECTED].includes(
-    orderBookSubscriptionState
-  );
+  const canSubscribe =
+    !isSubscribed &&
+    [SubscriptionState.CONNECTED].includes(orderBookSubscriptionState);
   const canStopStreaming = [SubscriptionState.SUBSCRIBED].includes(
     orderBookSubscriptionState
   );
@@ -59,10 +69,12 @@ const OrderBook: FC = () => {
   }, []);
 
   const subscribe = useCallback((productId) => {
+    setIsSubscribed(true);
     dispatch(subscribeToOrderBook(subscribeToOrderBookPayload([productId])));
   }, []);
 
   const unsubscribe = useCallback(() => {
+    setIsSubscribed(false);
     if (orderBookSubscriptionState === SubscriptionState.SUBSCRIBED) {
       dispatch(
         unsubscribeFromOrderBook(
@@ -113,6 +125,10 @@ const OrderBook: FC = () => {
   return (
     <div>
       <div>Current ProductId: {currentProductId}</div>
+      <div>Max Total {orderBookMaxTotal}</div>
+      <div>
+        Spread: {orderBookSpreadValue} {orderBookSpreadPercent}%
+      </div>
       <div>
         <button
           onClick={startStopStreaming}
@@ -124,6 +140,28 @@ const OrderBook: FC = () => {
         <button onClick={changeStreaming}>Toggle Feed {otherProductId}</button>
       </div>
       <div>{orderBookSubscriptionState}</div>
+      <div>
+        {["bids", "asks"].map((side) => {
+          return (
+            <div key={side}>
+              <h3>{side}</h3>
+              <div>Prices: ({orderBookPrices[side].length})</div>
+              <div>{orderBookPrices[side].map((price) => `${price}, `)}</div>
+              <br />
+              <div>Entries: ({Object.keys(orderBookEntries[side]).length})</div>
+              {orderBookPrices[side]
+                .filter((price) => ![Infinity, -Infinity].includes(price))
+                .map((price) => [price, orderBookEntries[side][price]])
+                .map(
+                  ([price, { size, total }]) =>
+                    `price: ${price}, size: ${size}, total: ${total} | `
+                )}
+              <br />
+              <br />
+            </div>
+          );
+        })}
+      </div>
       <div>{JSON.stringify(orderBookLastMessage)}</div>
     </div>
   );

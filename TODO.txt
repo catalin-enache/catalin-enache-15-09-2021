@@ -1,4 +1,30 @@
 
-use sorted map/list for entries
 use better css
+
+write doc about app in README
+explain algorithms used in doc
+
+show error message if cannot connect to stream
+show FPS or performance somehow
+
+responsiveness
+
+asks (red) are given in ascending order
+bids (green) are given in descending order
+The top of the book (where you'll find the highest bid and lowest ask prices) ...
+
+
+Further possible optimisations:
+    1. When prices event incoming, find a way to update totals starting
+    from lowest ask index or highest bid index from message payload correlated into prices array
+    rather of starting always from first price in prices array
+
+    2. See if possible to store the price index inside entries dictionary/map
+    This way finding the index for price would be O(1) rather than O(LogN) how it is now
+    by using binary search.
+    From current tries, the drawback is that when shifting prices to the left/right
+    we need O(N) to update each price in its corresponding dictionary/map entry.
+    In theory should be possible since we're already looping through the prices array
+    when inserting a new price in its right place, but synchronising the array with the map
+    requires a bit more development and good care.
 
