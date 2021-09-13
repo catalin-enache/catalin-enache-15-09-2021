@@ -38,7 +38,8 @@ export enum Side {
   ASKS = "asks",
 }
 export type PriceSize = [number, number];
-export type BidAskStruct = Record<number, { size: number; total: number }>;
+export type EntryValue = { size: number; total: number };
+export type BidAskStruct = Record<number, EntryValue>;
 
 export type OrderBookState = {
   subscriptionState: SubscriptionState;

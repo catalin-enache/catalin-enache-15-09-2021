@@ -22,13 +22,14 @@ import {
   unsubscribeFromOrderBookPayload,
 } from "./payloads";
 import { orderBookSetProductId } from "../../state";
+import { OrderBookRenderer } from "../OrderBookRenderer";
 
 const productIds: OrderBookProductId[] = ["PI_XBTUSD", "PI_ETHUSD"];
 const getOtherProductId = (productId: OrderBookProductId) =>
   productId === productIds[0] ? productIds[1] : productIds[0];
 const defaultProductId = productIds[0];
 
-const OrderBook: FC = () => {
+const OrderBookContainer: FC = () => {
   const dispatch = useAppDispatch();
   const orderBookSubscriptionState = useAppSelector(
     selectOrderBookSubscriptionState
@@ -121,49 +122,22 @@ const OrderBook: FC = () => {
   if (canSubscribe) {
     subscribe(currentProductId);
   }
-
   return (
-    <div>
-      <div>Current ProductId: {currentProductId}</div>
-      <div>Max Total {orderBookMaxTotal}</div>
-      <div>
-        Spread: {orderBookSpreadValue} {orderBookSpreadPercent}%
-      </div>
-      <div>
-        <button
-          onClick={startStopStreaming}
-          disabled={!canConnect && !canStopStreaming}
-        >
-          {canConnect ? `Start` : canStopStreaming ? "Stop" : "------"}{" "}
-          {currentProductId}
-        </button>
-        <button onClick={changeStreaming}>Toggle Feed {otherProductId}</button>
-      </div>
-      <div>{orderBookSubscriptionState}</div>
-      <div>
-        {["bids", "asks"].map((side) => {
-          return (
-            <div key={side}>
-              <h3>{side}</h3>
-              <div>Prices: ({orderBookPrices[side].length})</div>
-              <div>{orderBookPrices[side].map((price) => `${price}, `)}</div>
-              <br />
-              <div>Entries: ({Object.keys(orderBookEntries[side]).length})</div>
-              {orderBookPrices[side]
-                .filter((price) => ![Infinity, -Infinity].includes(price))
-                .map((price) => [price, orderBookEntries[side][price]])
-                .map(
-                  ([price, { size, total }]) =>
-                    `price: ${price}, size: ${size}, total: ${total} | `
-                )}
-              <br />
-              <br />
-            </div>
-          );
-        })}
-      </div>
-      <div>{JSON.stringify(orderBookLastMessage)}</div>
-    </div>
+    <OrderBookRenderer
+      currentProductId={currentProductId}
+      otherProductId={otherProductId}
+      orderBookMaxTotal={orderBookMaxTotal}
+      orderBookSubscriptionState={orderBookSubscriptionState}
+      orderBookSpreadValue={orderBookSpreadValue}
+      orderBookSpreadPercent={orderBookSpreadPercent}
+      orderBookPrices={orderBookPrices}
+      orderBookEntries={orderBookEntries}
+      orderBookLastMessage={orderBookLastMessage}
+      canConnect={canConnect}
+      canStopStreaming={canStopStreaming}
+      startStopStreaming={startStopStreaming}
+      changeStreaming={changeStreaming}
+    />
   );
 };
-export default OrderBook;
+export default OrderBookContainer;

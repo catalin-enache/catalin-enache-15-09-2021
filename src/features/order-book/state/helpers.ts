@@ -147,6 +147,8 @@ export const updateStateDataOnPriceMessage = (
       updateTotals(prices, entries, side, state);
     });
   });
+  // https://www.investopedia.com/articles/investing/082213/how-calculate-bidask-spread.asp
+  // https://www.fool.com/knowledge-center/how-to-calculate-the-bid-ask-spread-percentage.aspx
   state.spread.value = Math.abs(
     +(state.prices.bids[0] - state.prices.asks[0]).toFixed(2)
   );
