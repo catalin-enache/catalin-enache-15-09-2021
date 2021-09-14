@@ -16,6 +16,8 @@ export const store = configureStore({
   reducer: rootReducer,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
+      // Choosing 1 to make it hit the buffering flow
+      // so that we can intercept numLevels info at stream start.
       streamingMiddleware(0, processEventCb, getBufferedDataCb)
     ),
 });
