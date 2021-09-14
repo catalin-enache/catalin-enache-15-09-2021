@@ -67,6 +67,9 @@ export const OrderBookRenderer: FC<OrderBookRendererProps> = ({
   // injecting spread between sides for mobile
   priceSides.splice(1, 0, spreadJSXOnSmallScreen);
 
+  const changeBufferSize = (evt) =>
+    (window.streamingMiddlewareBufferSize = +evt.target.value || 0);
+
   return (
     <div className={styles.orderBook}>
       <div className={styles.orderBookHeader}>
@@ -101,6 +104,7 @@ export const OrderBookRenderer: FC<OrderBookRendererProps> = ({
           {currentProductId}
         </button>
         <button onClick={changeStreaming}>Toggle Feed {otherProductId}</button>
+        <input onChange={changeBufferSize} /> (buffSize)
       </div>
       {isDebugging && <div>{JSON.stringify(orderBookLastMessage)}</div>}
     </div>

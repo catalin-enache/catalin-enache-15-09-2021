@@ -21,9 +21,26 @@ export const actionStreamingMessage =
   createAction<StreamingMessageEvent>("streaming/message");
 
 const webSockets: Record<string, WebSocket> = {};
+const buffers: Record<string, { counter: number }> = {};
 
-export const streamingMiddleware: Middleware =
-  (storeApi) => (next) => (action) => {
+export type EventAggregatorCallback = (
+  id: string,
+  evt: MessageEvent
+) => boolean;
+export type RetrieveAggregationCallback = (id: string) => object;
+
+export const streamingMiddleware =
+  (
+    bufferSize,
+    processEventCb: EventAggregatorCallback,
+    getBufferedDataCb: RetrieveAggregationCallback
+  ): Middleware =>
+  (storeApi) =>
+  (next) =>
+  (action) => {
+    let theBufferSize =
+      +(window.streamingMiddlewareBufferSize ?? bufferSize) || 0;
+
     if (
       [null, undefined].includes(action.payload) ||
       typeof action.payload !== "object"
@@ -51,6 +68,7 @@ export const streamingMiddleware: Middleware =
       webSockets[subscription.link] = new WebSocket(subscription.link);
 
       webSockets[subscription.link].addEventListener("open", (event) => {
+        buffers[subscription.link] = { counter: theBufferSize };
         next(
           actionStreamingOpened({
             link: subscription.link,
@@ -82,14 +100,48 @@ export const streamingMiddleware: Middleware =
       webSockets[subscription.link].addEventListener(
         "message",
         (messageEvent) => {
-          webSockets[subscription.link] &&
-            next(
-              actionStreamingMessage({
-                link: subscription.link,
-                event: messageEvent,
-                message: messageEvent.data && JSON.parse(messageEvent.data),
-              })
-            );
+          theBufferSize =
+            +(window.streamingMiddlewareBufferSize ?? bufferSize) || 0; // so it can be adjusted at runtime
+          if (!theBufferSize) {
+            // normal unbuffered flow
+            webSockets[subscription.link] &&
+              next(
+                actionStreamingMessage({
+                  link: subscription.link,
+                  event: messageEvent,
+                  message: messageEvent.data && JSON.parse(messageEvent.data),
+                })
+              );
+            return;
+          } else {
+            const processed = processEventCb(subscription.link, messageEvent);
+            if (!processed) {
+              // if event not processed pass it through (normal unbuffered flow)
+              webSockets[subscription.link] &&
+                next(
+                  actionStreamingMessage({
+                    link: subscription.link,
+                    event: messageEvent,
+                    message: messageEvent.data && JSON.parse(messageEvent.data),
+                  })
+                );
+            } else {
+              buffers[subscription.link].counter &&
+                (buffers[subscription.link].counter -= 1);
+            }
+
+            if (buffers[subscription.link].counter === 0) {
+              buffers[subscription.link].counter = theBufferSize; // reset counter
+              webSockets[subscription.link] &&
+                next(
+                  actionStreamingMessage({
+                    link: subscription.link,
+                    // not sending the event since this is an aggregation of events
+                    message: getBufferedDataCb(subscription.link),
+                  })
+                );
+            }
+          }
         }
       );
     }

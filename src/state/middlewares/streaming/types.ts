@@ -20,7 +20,7 @@ export type StreamingCloseEvent = StreamingBaseEvent & {
 };
 
 export type StreamingMessageEvent = StreamingBaseEvent & {
-  event: MessageEvent;
+  event?: MessageEvent;
   message: any;
 };
 

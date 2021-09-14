@@ -6,6 +6,7 @@ import {
 } from "@reduxjs/toolkit";
 import { streamingMiddleware } from "./middlewares/streaming/streaming.midleware";
 import { orderBookReducer } from "../features/order-book/state";
+import { processEventCb, getBufferedDataCb } from "./bufferedMessagesHandlers";
 
 const rootReducer = combineReducers({
   orderBook: orderBookReducer,
@@ -14,7 +15,9 @@ const rootReducer = combineReducers({
 export const store = configureStore({
   reducer: rootReducer,
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(streamingMiddleware),
+    getDefaultMiddleware().concat(
+      streamingMiddleware(0, processEventCb, getBufferedDataCb)
+    ),
 });
 
 export type AppDispatch = typeof store.dispatch;

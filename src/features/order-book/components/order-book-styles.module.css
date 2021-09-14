@@ -116,6 +116,8 @@
 .orderBookButtonsContainer  {
     display: flex;
     justify-content: center;
+    align-items: center;
+    font-size: 10px;
 }
 .orderBookButtonsContainer button  {
     padding: 5px 10px;
@@ -130,6 +132,10 @@
 }
 .orderBookButtonsContainer button:hover {
     transform: scale(1.05);
+}
+.orderBookButtonsContainer input {
+    height: 20px;
+    width: 50px;
 }
 .errorColor {
     color: red;

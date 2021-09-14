@@ -5,12 +5,6 @@ bids (green) are given in descending order
 At the top of the book are displayed the highest bid and lowest ask prices.
 
 
-TODOs:
-write doc about app in README
-explain algorithms used in doc
-show/handle FPS or performance somehow
-
-
 Further possible optimisations:
     1. When prices event incoming, find a way to update totals starting
     from lowest ask index or highest bid index from message payload correlated into prices array
