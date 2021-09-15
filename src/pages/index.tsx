@@ -8,7 +8,7 @@ import utilStyles from "../styles/utils.module.css";
 export default function Home() {
   const router = useRouter();
   useEffect(() => {
-    router.push("/order-book");
+    router.push("/streaming-prices");
   }, []);
 
   return (
@@ -17,8 +17,8 @@ export default function Home() {
         <title>Our Website</title>
       </Head>
       <section className={utilStyles.headingMd}>
-        <Link href="/order-book">
-          <a>Order Book</a>
+        <Link href="/streaming-prices">
+          <a>Streaming Prices</a>
         </Link>
       </section>
     </Layout>

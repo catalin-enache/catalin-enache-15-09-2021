@@ -1,5 +1,4 @@
-# order-book
-Order Book
+# Streaming Prices
 
 live app:
 https://order-book-eosin.vercel.app/order-book

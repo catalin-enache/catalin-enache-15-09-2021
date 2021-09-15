@@ -10,12 +10,12 @@ const OrderBookPage: FC = () => {
   return (
     <Layout>
       <Head>
-        <title>Order Book POC</title>
+        <title>Streaming Prices POC</title>
       </Head>
       <div style={{ marginBottom: -15, paddingLeft: 3 }}>
         <CurrentDate />
       </div>
-      <h1 className={utilStyles.headingXl}>Order Book</h1>
+      <h1 className={utilStyles.headingXl}>Streaming Prices</h1>
       <OrderBookContainer />
     </Layout>
   );
