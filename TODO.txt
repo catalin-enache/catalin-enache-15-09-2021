@@ -1,8 +1,0 @@
-
-improve performance algorithm
-
-Facts:
-asks (red) are given in ascending order
-bids (green) are given in descending order
-At the top of the book are displayed the highest bid and lowest ask prices.
-
