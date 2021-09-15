@@ -3,3 +3,4 @@
 .DS_*
 node_modules
 .next
+.env.local
