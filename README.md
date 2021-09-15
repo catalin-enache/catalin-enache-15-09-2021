@@ -1,7 +1,7 @@
 # Streaming Prices
 
 live app:
-https://order-book-eosin.vercel.app/order-book
+https://catalin-enache-15-09-2021.vercel.app/streaming-prices
 
 There is a buffer size (in seconds) which can be adjusted at runtime
 before stream connection.
