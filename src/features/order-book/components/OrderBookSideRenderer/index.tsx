@@ -1,20 +1,20 @@
 import { FC } from "react";
 import cx from "class-names";
-import { BidAskStruct, Side, EntryValue } from "../../state";
+import { Side, PriceObject } from "../../state";
 import { OrderBookSideRendererRow } from "./OrderBookSideRendererRow";
 import styles from "../order-book-styles.module.css";
 
 type OrderBookSideRendererProps = {
-  prices: number[];
-  entries: BidAskStruct;
+  prices: PriceObject[];
   orderBookMaxTotal: number;
+  orderBookNumLevels: number;
   side: Side;
   isDebugging: boolean;
 };
 export const OrderBookSideRenderer: FC<OrderBookSideRendererProps> = ({
   orderBookMaxTotal,
+  orderBookNumLevels,
   side,
-  entries,
   prices,
   isDebugging,
 }) => {
@@ -24,14 +24,10 @@ export const OrderBookSideRenderer: FC<OrderBookSideRendererProps> = ({
       <div>Prices: ({prices.length})</div>
       <div>{prices.map((price) => `${price}, `)}</div>
       <br />
-      <div>Entries: ({Object.keys(entries).length})</div>
-      {prices
-        .filter((price) => ![Infinity, -Infinity].includes(price))
-        .map((price) => [price, entries[price]])
-        .map(
-          ([price, { size, total }]: [number, EntryValue]) =>
-            `price: ${price}, size: ${size}, total: ${total} | `
-        )}
+      {prices.map(
+        ({ price, size, total }) =>
+          `price: ${price}, size: ${size}, total: ${total} | `
+      )}
       <br />
       <br />
     </div>
@@ -45,6 +41,11 @@ export const OrderBookSideRenderer: FC<OrderBookSideRendererProps> = ({
     [styles.priceRowAsks]: side === Side.ASKS,
     [styles.priceRowBids]: side === Side.BIDS,
   });
+
+  const pricesLength = prices.length;
+  const fillSize = (orderBookNumLevels || 25) - pricesLength;
+  const fillObject: PriceObject = { price: 0, size: 0, total: 0 };
+  const padding = Array.from({ length: fillSize }).map(() => fillObject);
 
   return (
     <div className={priceTableClassNames}>
@@ -61,12 +62,10 @@ export const OrderBookSideRenderer: FC<OrderBookSideRendererProps> = ({
         <span className={styles.priceCell}>TOTAL</span>
       </div>
 
-      {prices.map((price, i) => (
+      {prices.concat(padding).map((price, i) => (
         <OrderBookSideRendererRow
           key={i}
-          price={price}
-          prices={prices}
-          entries={entries}
+          priceObj={price}
           orderBookMaxTotal={orderBookMaxTotal}
           side={side}
         />

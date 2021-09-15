@@ -10,10 +10,10 @@ import {
   selectOrderBookProductId,
   selectOrderBookSubscriptionState,
   selectOrderBookLastMessage,
-  selectOrderBookEntries,
   selectOrderBookPrices,
   selectOrderBookSpread,
   selectOrderBookMaxTotal,
+  selectOrderBookNumLevels,
 } from "../../state";
 import {
   connectToOrderBookPayload,
@@ -36,8 +36,8 @@ const OrderBookContainer: FC = () => {
   );
   const orderBookProductId = useAppSelector(selectOrderBookProductId);
   const orderBookLastMessage = useAppSelector(selectOrderBookLastMessage);
-  const orderBookEntries = useAppSelector(selectOrderBookEntries);
   const orderBookPrices = useAppSelector(selectOrderBookPrices);
+  const orderBookNumLevels = useAppSelector(selectOrderBookNumLevels);
   const { value: orderBookSpreadValue, percent: orderBookSpreadPercent } =
     useAppSelector(selectOrderBookSpread);
   const orderBookMaxTotal = useAppSelector(selectOrderBookMaxTotal);
@@ -57,22 +57,28 @@ const OrderBookContainer: FC = () => {
   const getCanConnect = useRef<boolean>(canConnect);
   getCanConnect.current = canConnect;
 
-  const setOrderBookProductId = useCallback((productId) => {
-    dispatch(orderBookSetProductId(productId));
-  }, []);
+  const setOrderBookProductId = useCallback(
+    (productId) => {
+      dispatch(orderBookSetProductId(productId));
+    },
+    [dispatch]
+  );
 
   const connect = useCallback(() => {
     dispatch(connectToOrderBook(connectToOrderBookPayload()));
-  }, []);
+  }, [dispatch]);
 
   const disconnect = useCallback(() => {
     dispatch(disconnectFromOrderBook(disconnectFromOrderBookPayload()));
-  }, []);
+  }, [dispatch]);
 
-  const subscribe = useCallback((productId) => {
-    setIsSubscribed(true);
-    dispatch(subscribeToOrderBook(subscribeToOrderBookPayload([productId])));
-  }, []);
+  const subscribe = useCallback(
+    (productId) => {
+      setIsSubscribed(true);
+      dispatch(subscribeToOrderBook(subscribeToOrderBookPayload([productId])));
+    },
+    [dispatch]
+  );
 
   const unsubscribe = useCallback(() => {
     setIsSubscribed(false);
@@ -83,7 +89,7 @@ const OrderBookContainer: FC = () => {
         )
       );
     }
-  }, [orderBookSubscriptionState, currentProductId]);
+  }, [orderBookSubscriptionState, currentProductId, dispatch]);
 
   const stopStreaming = useCallback(() => {
     unsubscribe();
@@ -114,10 +120,9 @@ const OrderBookContainer: FC = () => {
 
   // since WebSocket is not defined at SSR we fire it on mount which happens in browser only
   useEffect(() => {
-    window.addEventListener("blur", () => {
-      stopStreaming();
-    });
-  }, []);
+    window.addEventListener("blur", stopStreaming);
+    return () => window.removeEventListener("blur", stopStreaming);
+  }, [stopStreaming]);
 
   if (canSubscribe) {
     subscribe(currentProductId);
@@ -131,8 +136,8 @@ const OrderBookContainer: FC = () => {
       orderBookSpreadValue={orderBookSpreadValue}
       orderBookSpreadPercent={orderBookSpreadPercent}
       orderBookPrices={orderBookPrices}
-      orderBookEntries={orderBookEntries}
       orderBookLastMessage={orderBookLastMessage}
+      orderBookNumLevels={orderBookNumLevels}
       canConnect={canConnect}
       canStopStreaming={canStopStreaming}
       startStopStreaming={startStopStreaming}

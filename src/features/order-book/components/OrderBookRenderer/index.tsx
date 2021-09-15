@@ -14,8 +14,8 @@ type OrderBookRendererProps = {
   orderBookSpreadValue: number;
   orderBookSpreadPercent: number;
   orderBookPrices: OrderBookState["prices"];
-  orderBookEntries: OrderBookState["entries"];
   orderBookLastMessage: object;
+  orderBookNumLevels: number;
   canConnect: boolean;
   canStopStreaming: boolean;
   startStopStreaming: () => void;
@@ -28,12 +28,12 @@ export const OrderBookRenderer: FC<OrderBookRendererProps> = ({
   canStopStreaming,
   canConnect,
   orderBookMaxTotal,
-  orderBookEntries,
   orderBookSpreadValue,
   orderBookSpreadPercent,
   orderBookPrices,
   orderBookSubscriptionState,
   orderBookLastMessage,
+  orderBookNumLevels,
   startStopStreaming,
   changeStreaming,
 }) => {
@@ -56,8 +56,8 @@ export const OrderBookRenderer: FC<OrderBookRendererProps> = ({
       <OrderBookSideRenderer
         key={side}
         prices={orderBookPrices[side]}
-        entries={orderBookEntries[side]}
         orderBookMaxTotal={orderBookMaxTotal}
+        orderBookNumLevels={orderBookNumLevels}
         side={side}
         isDebugging={isDebugging}
       />

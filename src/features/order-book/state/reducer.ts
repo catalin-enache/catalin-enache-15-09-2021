@@ -15,7 +15,7 @@ const initialState: OrderBookState = {
   feed: null,
   productId: null,
   lastMessage: null,
-  entries: { bids: {}, asks: {} },
+  numLevels: 0,
   prices: { bids: [], asks: [] },
   spread: {
     value: 0,
@@ -34,20 +34,18 @@ export const orderBookReducer = createReducer(initialState, (builder) => {
       state.productId = action.payload;
     })
     // streaming middleware scenarios
-    .addCase(actionStreamingConnectionPending, (state, action) => {
+    .addCase(actionStreamingConnectionPending, (state) => {
       state.subscriptionState = SubscriptionState.PENDING;
       state.prices.asks = [];
       state.prices.bids = [];
-      state.entries.asks = {};
-      state.entries.bids = {};
     })
-    .addCase(actionStreamingOpened, (state, action) => {
+    .addCase(actionStreamingOpened, (state) => {
       state.subscriptionState = SubscriptionState.CONNECTED;
     })
-    .addCase(actionStreamingDisconnected, (state, action) => {
+    .addCase(actionStreamingDisconnected, (state) => {
       state.subscriptionState = SubscriptionState.DISCONNECTED;
     })
-    .addCase(actionStreamingDisconnectedUnclean, (state, action) => {
+    .addCase(actionStreamingDisconnectedUnclean, (state) => {
       state.subscriptionState = SubscriptionState.DISCONNECTED_UNCLEAN;
     })
     .addCase(actionStreamingMessage, (state, action) => {
@@ -59,9 +57,7 @@ export const orderBookReducer = createReducer(initialState, (builder) => {
       } else if (action.payload.message.event === "unsubscribed") {
         state.subscriptionState = SubscriptionState.UNSUBSCRIBED;
       } else if (action.payload.message.numLevels) {
-        const length = action.payload.message.numLevels;
-        state.prices.asks = Array.from({ length }).map(() => Infinity);
-        state.prices.bids = Array.from({ length }).map(() => -Infinity);
+        state.numLevels = action.payload.message.numLevels;
         updateStateDataOnPriceMessage(state, action);
       } else if (action.payload.message.bids) {
         updateStateDataOnPriceMessage(state, action);

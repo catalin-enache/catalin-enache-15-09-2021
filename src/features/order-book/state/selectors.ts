@@ -9,9 +9,6 @@ export const selectOrderBookProductId = (state: RootState) =>
 export const selectOrderBookLastMessage = (state: RootState) =>
   state.orderBook.lastMessage;
 
-export const selectOrderBookEntries = (state: RootState) =>
-  state.orderBook.entries;
-
 export const selectOrderBookPrices = (state: RootState) =>
   state.orderBook.prices;
 
@@ -20,3 +17,6 @@ export const selectOrderBookSpread = (state: RootState) =>
 
 export const selectOrderBookMaxTotal = (state: RootState) =>
   state.orderBook.maxTotal;
+
+export const selectOrderBookNumLevels = (state: RootState) =>
+  state.orderBook.numLevels;

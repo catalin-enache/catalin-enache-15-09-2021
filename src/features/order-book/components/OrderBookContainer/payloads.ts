@@ -6,7 +6,10 @@ import {
   OrderBookSubscribePayload,
   OrderBookUnsubscribePayload,
 } from "../../state";
-import { subscriptionLink, feed } from "../../../../constants";
+import {
+  subscriptionLink,
+  feed,
+} from "../../../../features/order-book/constants";
 
 export const connectToOrderBookPayload = (): OrderBookConnectPayload => ({
   subscription: { link: subscriptionLink, event: SubscriptionEvent.CONNECT },

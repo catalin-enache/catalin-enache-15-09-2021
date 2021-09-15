@@ -1,4 +1,4 @@
-import { SubscriptionPayload } from "../../../state/middlewares/streaming/types";
+import { SubscriptionPayload } from "../../../state/middlewares/streaming";
 
 export type OrderBookSubscribeEvent = "subscribe";
 export type OrderBookUnsubscribeEvent = "unsubscribe";
@@ -38,21 +38,17 @@ export enum Side {
   ASKS = "asks",
 }
 export type PriceSize = [number, number];
-export type EntryValue = { size: number; total: number };
-export type BidAskStruct = Record<number, EntryValue>;
+export type PriceObject = { price: number; size: number; total: number };
 
 export type OrderBookState = {
   subscriptionState: SubscriptionState;
   feed: OrderBookFeedId | null;
   productId: OrderBookProductId | null;
+  numLevels: number;
   lastMessage: object;
-  entries: {
-    bids: BidAskStruct;
-    asks: BidAskStruct;
-  };
   prices: {
-    bids: number[];
-    asks: number[];
+    bids: PriceObject[];
+    asks: PriceObject[];
   };
   spread: {
     value: number;

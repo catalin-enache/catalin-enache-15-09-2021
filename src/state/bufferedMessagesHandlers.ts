@@ -3,7 +3,7 @@ import {
   EventAggregatorCallback,
 } from "./middlewares/streaming";
 import { PriceSize } from "../features/order-book/state";
-import { subscriptionLink } from "../constants";
+import { subscriptionLink } from "../features/order-book/constants";
 
 const eventsToIgnore = new Set(["alert", "subscribed", "unsubscribed", "info"]);
 
