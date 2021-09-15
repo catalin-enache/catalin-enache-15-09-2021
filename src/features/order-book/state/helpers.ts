@@ -4,6 +4,7 @@ import { StreamingMessageEvent } from "../../../state/middlewares/streaming";
 export const calculateSpreadAndMaxTotal = (state: Partial<OrderBookState>) => {
   // https://www.investopedia.com/articles/investing/082213/how-calculate-bidask-spread.asp
   // https://www.fool.com/knowledge-center/how-to-calculate-the-bid-ask-spread-percentage.aspx
+  if (!state.prices.bids.length || !state.prices.asks.length) return;
   state.spread.value = Math.abs(
     +(state.prices.bids[0].price - state.prices.asks[0].price).toFixed(2)
   );
@@ -101,7 +102,7 @@ export const mergeSlice = (
 };
 
 export const updateStateDataOnPriceMessage = (
-  state: OrderBookState,
+  state: Partial<OrderBookState>,
   action: { payload: StreamingMessageEvent; type: string }
 ) => {
   [Side.BIDS, Side.ASKS].forEach((side) => {
@@ -110,7 +111,9 @@ export const updateStateDataOnPriceMessage = (
     const newPrices = mergeSlice(prices, messageEntries, side, state.numLevels);
 
     state.prices[side] = newPrices;
-    state.totals[side] = newPrices[newPrices.length - 1].total;
+    state.totals[side] = newPrices.length
+      ? newPrices[newPrices.length - 1].total
+      : 0;
   });
 
   calculateSpreadAndMaxTotal(state);

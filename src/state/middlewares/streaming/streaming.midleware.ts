@@ -21,7 +21,10 @@ export const actionStreamingMessage =
   createAction<StreamingMessageEvent>("streaming/message");
 
 const webSockets: Record<string, WebSocket> = {};
-const buffers: Record<string, { counter: number }> = {};
+const buffers: Record<
+  string,
+  { setIntervalId: ReturnType<typeof setInterval> }
+> = {};
 
 export type EventAggregatorCallback = (
   id: string,
@@ -32,8 +35,8 @@ export type RetrieveAggregationCallback = (id: string) => object;
 export const streamingMiddleware =
   (
     bufferSize,
-    processEventCb: EventAggregatorCallback,
-    getBufferedDataCb: RetrieveAggregationCallback
+    aggregateEventCb: EventAggregatorCallback,
+    getAggregatedDataCb: RetrieveAggregationCallback
   ): Middleware =>
   (storeApi) =>
   (next) =>
@@ -68,7 +71,28 @@ export const streamingMiddleware =
       webSockets[subscription.link] = new WebSocket(subscription.link);
 
       webSockets[subscription.link].addEventListener("open", (event) => {
-        buffers[subscription.link] = { counter: theBufferSize };
+        buffers[subscription.link] &&
+          clearInterval(buffers[subscription.link].setIntervalId);
+        if (theBufferSize) {
+          buffers[subscription.link] = {
+            setIntervalId: setInterval(() => {
+              if (webSockets[subscription.link]) {
+                const aggregatedMessage = getAggregatedDataCb(
+                  subscription.link
+                );
+                aggregatedMessage &&
+                  next(
+                    actionStreamingMessage({
+                      link: subscription.link,
+                      // not sending the event since this is an aggregation of events
+                      message: aggregatedMessage,
+                    })
+                  );
+              }
+            }, theBufferSize * 1000),
+          };
+        }
+
         next(
           actionStreamingOpened({
             link: subscription.link,
@@ -78,6 +102,8 @@ export const streamingMiddleware =
       });
 
       webSockets[subscription.link].addEventListener("close", (closeEvent) => {
+        buffers[subscription.link] &&
+          clearInterval(buffers[subscription.link].setIntervalId);
         if (
           !webSockets[subscription.link] ||
           webSockets[subscription.link] !== closeEvent.currentTarget
@@ -89,6 +115,7 @@ export const streamingMiddleware =
           link: subscription.link,
           wasClean: closeEvent.wasClean,
         };
+
         if (closeEvent.wasClean) {
           next(actionStreamingDisconnected(payload));
         } else {
@@ -100,8 +127,6 @@ export const streamingMiddleware =
       webSockets[subscription.link].addEventListener(
         "message",
         (messageEvent) => {
-          theBufferSize =
-            +(window.streamingMiddlewareBufferSize ?? bufferSize) || 0; // so it can be adjusted at runtime
           if (!theBufferSize) {
             // normal unbuffered flow
             webSockets[subscription.link] &&
@@ -112,9 +137,8 @@ export const streamingMiddleware =
                   message: messageEvent.data && JSON.parse(messageEvent.data),
                 })
               );
-            return;
           } else {
-            const processed = processEventCb(subscription.link, messageEvent);
+            const processed = aggregateEventCb(subscription.link, messageEvent);
             if (!processed) {
               // if event not processed pass it through (normal unbuffered flow)
               webSockets[subscription.link] &&
@@ -123,21 +147,6 @@ export const streamingMiddleware =
                     link: subscription.link,
                     event: messageEvent,
                     message: messageEvent.data && JSON.parse(messageEvent.data),
-                  })
-                );
-            } else {
-              buffers[subscription.link].counter &&
-                (buffers[subscription.link].counter -= 1);
-            }
-
-            if (buffers[subscription.link].counter === 0) {
-              buffers[subscription.link].counter = theBufferSize; // reset counter
-              webSockets[subscription.link] &&
-                next(
-                  actionStreamingMessage({
-                    link: subscription.link,
-                    // not sending the event since this is an aggregation of events
-                    message: getBufferedDataCb(subscription.link),
                   })
                 );
             }

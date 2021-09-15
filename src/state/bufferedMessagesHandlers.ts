@@ -20,7 +20,7 @@ const bufferedData: BufferedData = {
 };
 
 // storing asks and bids in a map
-export const processEventCb: EventAggregatorCallback = (id, messageEvent) => {
+export const aggregateEventCb: EventAggregatorCallback = (id, messageEvent) => {
   if (!messageEvent.data) {
     return false;
   }
@@ -52,7 +52,7 @@ converting them to PriceSize[] array [[price, size]],
 sort the arrays (asks ASC, bids DESC)
 and return the first slice of it containing at least 25 non zeroed prices
 * */
-export const getBufferedDataCb: RetrieveAggregationCallback = (id) => {
+export const getAggregatedDataCb: RetrieveAggregationCallback = (id) => {
   const { bids, asks, numLevels: _numLevels } = bufferedData[id];
   // Be aware ! If stream starts with 0 buffer then numLevels won't be received.
   // so changing streamingMiddlewareBufferSize at runtime will look like stream has been stopped.

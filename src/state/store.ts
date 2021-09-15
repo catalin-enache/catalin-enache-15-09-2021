@@ -6,7 +6,11 @@ import {
 } from "@reduxjs/toolkit";
 import { streamingMiddleware } from "./middlewares/streaming/streaming.midleware";
 import { orderBookReducer } from "../features/order-book/state";
-import { processEventCb, getBufferedDataCb } from "./bufferedMessagesHandlers";
+import {
+  aggregateEventCb,
+  getAggregatedDataCb,
+} from "./bufferedMessagesHandlers";
+import { bufferSize } from "../features/order-book/constants";
 
 const rootReducer = combineReducers({
   orderBook: orderBookReducer,
@@ -18,7 +22,7 @@ export const store = configureStore({
     getDefaultMiddleware().concat(
       // Choosing 1 to make it hit the buffering flow
       // so that we can intercept numLevels info at stream start.
-      streamingMiddleware(0, processEventCb, getBufferedDataCb)
+      streamingMiddleware(bufferSize, aggregateEventCb, getAggregatedDataCb)
     ),
 });
 

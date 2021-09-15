@@ -2,6 +2,7 @@ import { FC } from "react";
 import cx from "class-names";
 import { OrderBookState, Side, SubscriptionState } from "../../state";
 import { OrderBookSideRenderer } from "../OrderBookSideRenderer";
+import { bufferSize } from "../../constants";
 import styles from "../order-book-styles.module.css";
 
 const isDebugging = false;
@@ -104,7 +105,14 @@ export const OrderBookRenderer: FC<OrderBookRendererProps> = ({
           {currentProductId}
         </button>
         <button onClick={changeStreaming}>Toggle Feed {otherProductId}</button>
-        <input onChange={changeBufferSize} /> (buffSize)
+        <input
+          onChange={changeBufferSize}
+          disabled={!canConnect}
+          defaultValue={bufferSize}
+        />
+        <span style={{ color: "#777", marginLeft: 5 }}>
+          (buffSize in seconds)
+        </span>
       </div>
       {isDebugging && <div>{JSON.stringify(orderBookLastMessage)}</div>}
     </div>

@@ -1,5 +1,9 @@
 import { PriceSize, PriceObject, Side } from "../types";
-import { mergeSlice, calculateSpreadAndMaxTotal } from "../helpers";
+import {
+  mergeSlice,
+  calculateSpreadAndMaxTotal,
+  updateStateDataOnPriceMessage,
+} from "../helpers";
 
 describe("mergeSlice", () => {
   it("returns an array not greater than numLevels", () => {
@@ -260,5 +264,26 @@ describe("calculateSpreadAndMaxTotal", () => {
       totals: { bids: 1000, asks: 1100 },
       maxTotal: 1100,
     });
+  });
+});
+
+describe("updateStateDataOnPriceMessage", () => {
+  it.only("does not throw when existing prices and new prices are empty", () => {
+    const state = {
+      prices: {
+        bids: [],
+        asks: [],
+      },
+      spread: { value: 0, percent: 0 },
+      totals: { bids: 1000, asks: 1100 },
+      maxTotal: 0,
+    };
+    // prettier-ignore
+    const action = {
+      type: "", link: "", payload: { message: { asks: [], bids: [] }, link: "" },
+    };
+    expect(() => {
+      updateStateDataOnPriceMessage(state, action);
+    }).not.toThrow();
   });
 });
